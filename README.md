@@ -1,63 +1,93 @@
-# Điểm danh bằng khuôn mặt (DeepFace + OpenCV + Streamlit)
+# Hệ Thống Điểm Danh Bằng Khuôn Mặt (Face Recognition Attendance System)
 
-Hệ thống điểm danh dùng mô hình nhận diện khuôn mặt ArcFace qua thư viện DeepFace.
-Tích hợp giao diện Dashboard Web Streamlit, tự động đối soát danh sách lớp (ai có mặt, ai vắng mặt)
-và xuất báo cáo Excel/CSV chỉ với 1 cú nhấp chuột.
+**Đồ án Capstone AI — Samsung Innovation Campus (SIC)**
+- **Sinh viên thực hiện:** Trần Thị Thu Huyền
+- **Mã sinh viên:** DTC245180013
+- **Email:** dtc245180013@ictu.edu.vn
+- **GitHub Repository:** [https://github.com/dtc245180013-droid/diemdanhkhuonmat](https://github.com/dtc245180013-droid/diemdanhkhuonmat)
 
-## Cài đặt
+---
 
-Dùng Python 3.9 đến 3.12.
+## Giới thiệu dự án
+
+Hệ thống điểm danh thông minh ứng dụng học sâu (Deep Learning) nhận diện khuôn mặt thời gian thực:
+- **Kiến trúc mô hình:** ArcFace (Pre-trained Feature Extractor, vector 512 chiều).
+- **Bộ phát hiện khuôn mặt (Detector):** OpenCV Haar Cascade / RetinaFace.
+- **Độ đo khoảng cách:** Cosine Distance (Ngưỡng tối ưu: `0.55`).
+- **Cơ chế chống rung / chống nhận nhầm:** Xác nhận liên tiếp 2 lần mới ghi nhận điểm danh.
+- **Chống giả mạo (Anti-Spoofing):** Tích hợp mạng MiniFASNet phát hiện ảnh in và màn hình điện thoại.
+- **Giao diện quản lý Web (Streamlit):** Đối soát danh sách lớp tự động (Có mặt / Vắng mặt), thống kê chuyên cần và xuất báo cáo Excel (.xlsx) / CSV 1-click.
+
+---
+
+## Cài đặt môi trường
+
+Hỗ trợ Python 3.9 đến 3.12 trên Windows / Linux / macOS.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Lần chạy đầu DeepFace tự tải trọng số model nên cần có mạng (trọng số đã được nạp sẵn offline).
+*(Các trọng số mô hình ArcFace và MiniFASNet đã được cấu hình và tải sẵn offline).*
 
-## Cách dùng
+---
 
-### 1. Đăng ký khuôn mặt sinh viên
-Chụp 10 ảnh mẫu cho mỗi sinh viên:
+## Hướng dẫn sử dụng
+
+### 1. Đăng ký khuôn mặt sinh viên mới
+Chụp 10 ảnh mẫu trực tiếp qua webcam:
 ```bash
 python diem_danh.py dang-ky --ten Tranthithuhuyen
 ```
-*(SPACE: chụp ảnh | Q: thoát)*
+- Nhấn **SPACE** (phím cách) để chụp từng ảnh.
+- Nhấn **Q** để thoát sau khi chụp xong.
 
-### 2. Điểm danh thời gian thực qua webcam
+### 2. Chạy điểm danh thời gian thực
 ```bash
+# Điểm danh tiêu chuẩn
 python diem_danh.py chay
-```
-Thêm cờ `--chong-gia` để bật chống giả mạo bằng ảnh in/màn hình:
-```bash
+
+# Điểm danh có kích hoạt tính năng chống ảnh in / màn hình giả mạo
 python diem_danh.py chay --chong-gia
 ```
-Kết quả được tự động ghi nhận vào `diem_danh/diem_danh_<ngày>.csv`.
+Kết quả điểm danh được ghi tự động vào file `diem_danh/diem_danh_<YYYY-MM-DD>.csv`.
 
-### 3. Mở Giao diện Web Dashboard (Điểm cộng đồ án)
-Khởi chạy trang quản trị điểm danh sinh viên:
+### 3. Khởi chạy Giao diện Quản Trị Web (Dashboard)
 ```bash
 streamlit run app.py
 ```
-- Tự động đối soát với `danh_sach_lop.csv` để thống kê ai Có mặt, ai Vắng mặt.
-- Xem tỉ lệ chuyên cần (%), biểu đồ trực quan.
-- Tải báo cáo danh sách điểm danh ra file **Excel (.xlsx)** hoặc **CSV**.
+- Tự động đối soát với danh sách sinh viên trong file `danh_sach_lop.csv`.
+- Hiển thị trực quan: Tổng sĩ số, Số lượng có mặt (xanh lá), Số lượng vắng (đỏ), Tỉ lệ chuyên cần (%).
+- Tải về file **Excel (.xlsx)** hoặc **CSV** báo cáo điểm danh theo ngày.
+- Xem biểu đồ đường phân tích đánh đổi FAR / FRR theo ngưỡng khoảng cách.
 
-### 4. Đánh giá mô hình để lấy số liệu cho Báo cáo
+### 4. Đánh giá mô hình (Phục vụ viết Báo cáo Capstone Chương 5)
 ```bash
 python diem_danh.py danh-gia --test test
 ```
+Tự động xuất bảng số liệu: `ket_qua_danh_gia.csv` và `chi_tiet_danh_gia.csv`.
 
-## Cấu trúc thư mục
+---
+
+## Cấu trúc thư mục dự án
 
 ```
-danh_sach_lop.csv                 danh sách sinh viên cả lớp (MSSV, Họ tên, Tên đăng ký)
-app.py                            giao diện Web Dashboard Streamlit
-diem_danh.py                      mã nguồn điểm danh, đăng ký, đánh giá
-my_db/
-  Tranthithuhuyen/ 1.jpg ...      ảnh đăng ký của sinh viên
-test/                             dùng cho lệnh danh-gia
-  Tranthithuhuyen/ t1.jpg ...     ảnh kiểm thử (KHÔNG trùng ảnh trong my_db)
-  nguoi_la/        x1.jpg ...     ảnh người chưa đăng ký (đo FAR)
-diem_danh/
-  diem_danh_2026-11-12.csv        nhật ký điểm danh theo ngày
+diemdanhkhuonmat/
+│
+├── diem_danh.py                  # Mã nguồn chính: đăng ký, điểm danh webcam, đánh giá AI
+├── app.py                        # Giao diện Web Dashboard (Streamlit)
+├── requirements.txt              # Danh sách thư viện cần thiết
+├── danh_sach_lop.csv             # Danh sách sinh viên cả lớp (MSSV, Họ tên, Tên đăng ký)
+├── bo_prompt.md                  # Bộ 7 mẫu prompt viết báo cáo & thuyết trình Capstone
+├── README.md                     # Tài liệu hướng dẫn sử dụng và thông tin đồ án
+├── ket_qua_danh_gia.csv          # Bảng số liệu kiểm thử AI (Accuracy, FAR, FRR theo ngưỡng)
+├── chi_tiet_danh_gia.csv         # Chi tiết từng mẫu ảnh nhận diện đúng/sai
+├── embeddings.pkl                # Cache vector đặc trưng khuôn mặt (ArcFace 512D)
+│
+├── my_db/                        # Thư mục ảnh đăng ký của từng sinh viên
+│   └── Tranthithuhuyen/          # 10 ảnh chụp khuôn mặt thực tế
+│
+└── diem_danh/                    # Nhật ký điểm danh theo ngày
+    ├── diem_danh_2026-11-12.csv  # Lịch sử điểm danh hôm nay
+    └── diem_danh_2026-11-11.csv  # Lịch sử điểm danh các buổi trước
 ```
